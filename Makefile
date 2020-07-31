@@ -1,12 +1,18 @@
 SRC=src
-OUT=build
-NIMFLAGS=--outdir:$(OUT) -d:ssl
+
+DEBUGOUT=build
+RELEASEOUT=release
+
+FLAGS=-d:ssl
+
+DEBUGOPTS=$(FLAGS) --outdir:$(DEBUGOUT)
+RELEASEOPTS=$(FLAGS) --outdir:$(RELEASEOUT) -d:release
 
 run:
-	nim c $(NIMFLAGS) -r $(SRC)/swscl
+	nim c $(DEBUGOPTS) -r $(SRC)/swscl
 
 release:
-	nim c $(NIMFLAGS) -d:release $(SRC)/swscl
+	nim c $(RELEASEOPTS) $(SRC)/swscl
 
 clean:
 	rm ./build/*
