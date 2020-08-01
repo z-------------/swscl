@@ -17,7 +17,7 @@ release: runbins
 bins:
 	nim c -d:release bin/printVersion
 
-runbins: bins
+runbins:
 	bin/printVersion
 
 clean:
