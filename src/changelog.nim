@@ -8,8 +8,10 @@ import nimquery
 import re
 import timezones  # i know, right?
 
+const VERSION = staticRead("../version")
+
 var http = newHttpClient()
-http.headers = newHttpHeaders({ "User-Agent": "swscl/0.0.0" })  # can we programmatically set the version string at compile-time?
+http.headers = newHttpHeaders({ "User-Agent": "swscl/" & VERSION })
 
 # types #
 
