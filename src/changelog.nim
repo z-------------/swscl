@@ -8,10 +8,10 @@ import nimquery
 import re
 import timezones  # i know, right?
 
-const VERSION = staticRead("../version")
+const Version = staticRead("../version")
 
 var http = newHttpClient()
-http.headers = newHttpHeaders({ "User-Agent": "swscl/" & VERSION })
+http.headers = newHttpHeaders({ "User-Agent": "swscl/" & Version })
 
 # types #
 
@@ -61,7 +61,7 @@ proc getUpdateDate(formattedDateStr: string): DateTime =
 
 proc getChangelogPage(id: string; page = 1): ChangelogPage =
   let url = buildChangelogPageUrl(id, page)
-  
+
   var resp = http.get(url)
   var stream = resp.bodyStream
   var doc = parseHtml(stream)  # ignores parsing errors
@@ -87,7 +87,7 @@ proc getChangelogPage(id: string; page = 1): ChangelogPage =
     updates.add(update)
 
   # get page info #
-  
+
   let pagingControlsElem = doc.querySelector(".workshopBrowsePagingControls")
   var
     hasNextPage = false
@@ -101,9 +101,9 @@ proc getChangelogPage(id: string; page = 1): ChangelogPage =
         hasNextPage = true
         nextPage = expectedNextPage
         break
-  
+
   return ChangelogPage(name: itemName, updates: updates, hasNextPage: hasNextPage, nextPage: nextPage)
-  
+
 # public #
 
 proc getChangelog*(id: string; since = 0): Changelog =
@@ -127,5 +127,5 @@ proc getChangelog*(id: string; since = 0): Changelog =
       done = true
     else:
       pageNum = clPage.nextPage
-  
+
   return Changelog(name: clPage.name, id: id, updates: updates)
