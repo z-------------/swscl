@@ -16,9 +16,6 @@ run:
 release:
 	$(NIM) $(RELEASEOPTS) $(SRC)/swscl
 
-bins:
-	$(NIM) -d:release bin/printVersion
-
 clean:
 	rm ./$(DEBUGOUT)/*
 	rm ./$(RELEASEOUT)/*
