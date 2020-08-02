@@ -8,10 +8,10 @@ import nimquery
 import re
 import timezones  # i know, right?
 
-const Version = staticRead("../version")
+const NimblePkgVersion {.strdefine.} = "Unknown"
 
 var http = newHttpClient()
-http.headers = newHttpHeaders({ "User-Agent": "swscl/" & Version })
+http.headers = newHttpHeaders({ "User-Agent": "swscl/" & NimblePkgVersion })
 
 # types #
 

@@ -1,3 +1,5 @@
+NIM=nimble c
+
 SRC=src
 
 DEBUGOUT=build
@@ -8,17 +10,14 @@ FLAGS=-d:ssl
 DEBUGOPTS=$(FLAGS) --outdir:$(DEBUGOUT)
 RELEASEOPTS=$(FLAGS) --outdir:$(RELEASEOUT) -d:release
 
-run: runbins
-	nim c $(DEBUGOPTS) -r $(SRC)/swscl
+run:
+	$(NIM) $(DEBUGOPTS) -r $(SRC)/swscl
 
-release: runbins
-	nim c $(RELEASEOPTS) $(SRC)/swscl
+release:
+	$(NIM) $(RELEASEOPTS) $(SRC)/swscl
 
 bins:
-	nim c -d:release bin/printVersion
-
-runbins:
-	bin/printVersion
+	$(NIM) -d:release bin/printVersion
 
 clean:
 	rm ./$(DEBUGOUT)/*
