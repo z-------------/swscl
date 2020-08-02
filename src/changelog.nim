@@ -106,8 +106,7 @@ proc getChangelogPage(id: string; page = 1): ChangelogPage =
 
 # public #
 
-proc getChangelog*(id: string; since = 0): Changelog =
-  let since = times.fromUnix(since)
+proc getChangelog*(id: string; since: Time): Changelog =
   var done = false
   var pageNum = 1
   var clPage: ChangelogPage
@@ -129,3 +128,9 @@ proc getChangelog*(id: string; since = 0): Changelog =
       pageNum = clPage.nextPage
 
   return Changelog(name: clPage.name, id: id, updates: updates)
+
+proc getChangelog*(id: string; since: DateTime): Changelog =
+  getChangelog(id, since.toTime())
+
+proc getChangelog*(id: string; since = 0): Changelog =
+  getChangelog(id, times.fromUnix(since))
