@@ -7,20 +7,20 @@ import xmltree
 import nimquery
 import re
 import timezones  # i know, right?
+import asyncdispatch
 
 const NimblePkgVersion {.strdefine.} = "Unknown"
 
-var http = newHttpClient()
-http.headers = newHttpHeaders({ "User-Agent": "swscl/" & NimblePkgVersion })
+let headers = newHttpHeaders({ "User-Agent": "swscl/" & NimblePkgVersion })
 
 # types #
 
-type Update = ref object
+type Update* = ref object
   id*: string  # update id
   date*: DateTime
   text*: string
 
-type Changelog = ref object
+type Changelog* = ref object
   name*: string  # workshop item name
   id*: string  # workshop item id
   updates*: seq[Update]
@@ -59,12 +59,15 @@ proc getUpdateDate(formattedDateStr: string): DateTime =
     let dt = times.parse(formattedDateStr, "d MMM '@' h:mmtt", tz)
     dt + now().year.years  # set the year
 
-proc getChangelogPage(id: string; page = 1): ChangelogPage =
+proc getChangelogPage(id: string; page = 1): Future[ChangelogPage] {.async.} =
+  var http = newAsyncHttpClient()
+  http.headers = headers
+
   let url = buildChangelogPageUrl(id, page)
 
-  var resp = http.get(url)
-  var stream = resp.bodyStream
-  var doc = parseHtml(stream)  # ignores parsing errors
+  var resp = await http.get(url)
+  var body = await resp.body
+  var doc = parseHtml(body)  # ignores parsing errors
 
   # get workshop item name #
 
@@ -106,7 +109,9 @@ proc getChangelogPage(id: string; page = 1): ChangelogPage =
 
 # public #
 
-proc getChangelog*(id: string; since: Time): Changelog =
+proc getChangelog*(id: string; since: Time): Future[Changelog] {.async.} =
+  echo "starting on ", id
+
   var done = false
   var pageNum = 1
   var clPage: ChangelogPage
@@ -114,7 +119,7 @@ proc getChangelog*(id: string; since: Time): Changelog =
   var updates = newSeq[Update]()
 
   while not done:
-    clPage = getChangelogPage(id, pageNum)
+    clPage = await getChangelogPage(id, pageNum)
 
     for update in clPage.updates:
       if update.date.toTime() < since:
@@ -126,11 +131,13 @@ proc getChangelog*(id: string; since: Time): Changelog =
       done = true
     else:
       pageNum = clPage.nextPage
+  
+  echo "done with ", id
 
   return Changelog(name: clPage.name, id: id, updates: updates)
 
-proc getChangelog*(id: string; since: DateTime): Changelog =
-  getChangelog(id, since.toTime())
+proc getChangelog*(id: string; since: DateTime): Future[Changelog] {.async.} =
+  return await getChangelog(id, since.toTime())
 
-proc getChangelog*(id: string; since = 0): Changelog =
-  getChangelog(id, times.fromUnix(since))
+proc getChangelog*(id: string; since = 0): Future[Changelog] {.async.} =
+  return await getChangelog(id, times.fromUnix(since))
