@@ -11,4 +11,7 @@ bin           = @["swscl"]
 
 # Dependencies
 
-requires "nim >= 1.2.2, nimquery >= 1.2.2, timezones >= 0.5.3"
+requires "nim >= 1.2.2"
+requires "nimquery >= 1.2.2"
+requires "timezones >= 0.5.3"
+requires "docopt >= 0.6.8"

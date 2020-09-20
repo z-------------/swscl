@@ -13,6 +13,9 @@ RELEASEOPTS=$(FLAGS) --outdir:$(RELEASEOUT) -d:release
 run:
 	$(NIM) $(DEBUGOPTS) -r $(SRC)/swscl
 
+debug:
+	$(NIM) $(DEBUGOPTS) $(SRC)/swscl
+
 release:
 	$(NIM) $(RELEASEOPTS) $(SRC)/swscl
 
