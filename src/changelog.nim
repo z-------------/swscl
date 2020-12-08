@@ -110,7 +110,7 @@ proc getChangelogPage(id: string; page = 1): Future[ChangelogPage] {.async.} =
 # public #
 
 proc getChangelog*(id: string; since: Time): Future[Changelog] {.async.} =
-  echo "starting on ", id
+  # echo "starting on ", id
 
   var done = false
   var pageNum = 1
@@ -132,7 +132,7 @@ proc getChangelog*(id: string; since: Time): Future[Changelog] {.async.} =
     else:
       pageNum = clPage.nextPage
   
-  echo "done with ", id
+  # echo "done with ", id
 
   return Changelog(name: clPage.name, id: id, updates: updates)
 

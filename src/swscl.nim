@@ -7,13 +7,18 @@ import sequtils
 import strutils
 import sugar
 import times
+import userconfig
 
 import ./changelog
 
 const doc = """
 Usage:
-  swscl (id <id>... | dir <dir>) [--since=<tp>]
+  swscl id <ids> [--since=<tp>]
+  swscl dir [<dir>] [--since=<tp>]
   swscl (-h | --help)
+
+Arguments:
+  <ids>         Comma-separated list of Workshop IDs.
 
 Options:
   --since=<tp>  Show changelogs from a period of time.
@@ -38,8 +43,6 @@ proc getWorkshopId(filename: string): string =
 # main
 #
 
-# handle opts #
-
 let args = docopt(doc)
 
 var sinceTime = 0.fromUnix
@@ -58,12 +61,23 @@ if args["--since"]:
   else:
     die("Invalid interval '" & sinceStr & "'.")
 
-# fetch #
+# get workshop IDs #
+
+var workshopIds: seq[string]
 
 if args["dir"]:
-  var workshopIds: seq[string]
-
-  let dirPath = $args["<dir>"]
+  var dirPath: string
+  if args["<dir>"]:
+    dirPath = $args["<dir>"]
+  else:
+    let config = initConfigDir("com.zackguard.swscl")
+    const DirPathFilename = "addonsDir"
+    try:
+      let lst = config.loadList(DirPathFilename)
+      dirPath = lst[0]
+    except IOError:
+      die("Error reading " & config.path & "/" & DirPathFilename & ". (Does it exist?)")
+  
   for kind, filename in walkDir(dirPath, relative = true):
     if kind != pcFile:
       continue
@@ -71,9 +85,15 @@ if args["dir"]:
       continue
     let workshopId = getWorkshopId(filename)
     workshopIds.add(workshopId)
-  
-  let changelogs = waitFor all(workshopIds.map((id) => getChangelog(id, sinceTime)))
-  for changelog in changelogs:
-    if changelog.updates.len == 0:
-      continue
-    echo changelog.name
+
+elif args["id"]:
+  for id in ($args["<ids>"]).split(","):
+    workshopIds.add(id)
+
+# fetch #
+
+let changelogs = waitFor all(workshopIds.map((id) => getChangelog(id, sinceTime)))
+for changelog in changelogs:
+  if changelog.updates.len == 0:
+    continue
+  echo changelog.name, " (", changelog.updates.len, " updates)"
