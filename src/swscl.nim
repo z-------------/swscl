@@ -76,7 +76,7 @@ if args["dir"]:
       let lst = config.loadList(DirPathFilename)
       dirPath = lst[0]
     except IOError:
-      die("Error reading " & config.path & "/" & DirPathFilename & ". (Does it exist?)")
+      die("Error reading " & config.getPath(DirPathFilename) & ". (Does it exist?)")
   
   for kind, filename in walkDir(dirPath, relative = true):
     if kind != pcFile:
