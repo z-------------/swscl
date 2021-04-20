@@ -34,7 +34,7 @@ proc die(msg: string; code = 1) {.noreturn.} =
   quit(code)
 
 proc isWorkshopAddonFilename(filename: string): bool =
-  filename.match(re"\d+\.vpk")
+  filename.match(re"^\d+(.*)?\.vpk$")
 
 proc getWorkshopId(filename: string): string =
   let extIdx = filename.find(".vpk")
