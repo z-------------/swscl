@@ -106,4 +106,4 @@ let changelogs = waitFor all(workshopIds.map((id) => getChangelog(id, sinceTime)
 for changelog in changelogs:
   if changelog.updates.len == 0:
     continue
-  echo changelog.name, " (", changelog.updates.len, " updates)"
+  echo changelog.name, "\t", changelog.updates.len, "\t", changelog.id, "\t", "https://steamcommunity.com/sharedfiles/filedetails/?id=" & $changelog.id
