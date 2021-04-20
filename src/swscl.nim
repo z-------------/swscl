@@ -98,7 +98,7 @@ if args["dir"]:
     if kind != pcFile:
       continue
     if filename == TimestampFilename and not args["--since"]:
-      let sinceTimestamp = readFile(filename).strip.parseInt
+      let sinceTimestamp = readFile(joinPath(dirPath, filename)).strip.parseInt
       sinceTime = sinceTimestamp.fromUnix
       continue
     if not filename.isWorkshopAddonFilename:
