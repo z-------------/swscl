@@ -24,7 +24,8 @@ Options:
   --since=<tp>  Show changelogs from a period of time.
                 Time periods are denoted {x}{u}, where {x} is an integer and {u}
                 is one of the following:
-                  w - weeks
+                  u - since {x} as Unix time in seconds
+                  w - since {x} weeks ago
   -h --help     Show this help and exit.
 """
 
@@ -51,15 +52,21 @@ if args["--since"]:
     sinceStr = $args["--since"]
     number = sinceStr[0..<sinceStr.high].parseInt
     unit = sinceStr[sinceStr.high]
-    interval =
+
+  if unit == 'u':
+    sinceTime = number.fromUnix
+  else:
+    let interval =
       if unit == 'w':
         some(number.weeks)
       else:
         none(TimeInterval)
-  if interval.isSome:
-    sinceTime = (now() - interval.get).toTime
-  else:
-    die("Invalid interval '" & sinceStr & "'.")
+    if interval.isSome:
+      sinceTime = (now() - interval.get).toTime
+    else:
+      die("Invalid interval '" & sinceStr & "'.")
+  
+  echo "sinceTime = ", sinceTime
 
 # get workshop IDs #
 
