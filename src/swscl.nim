@@ -55,21 +55,29 @@ proc getWorkshopId(filename: string): string =
 
 let args = docopt(doc)
 
-var sinceTime = 0.fromUnix
+var
+  sinceTime = 0.fromUnix
+  readSinceTimeFromFile = false
+
 if args["--since"]:
   let
     sinceStr = $args["--since"]
-    number = sinceStr[0..<sinceStr.high].parseInt
+    numberStr = sinceStr[0..<sinceStr.high]
     unit = sinceStr[sinceStr.high]
 
   if unit == 'u':
-    sinceTime = number.fromUnix
+    if numberStr == "f":
+      readSinceTimeFromFile = true
+    else:
+      sinceTime = numberStr.parseInt.fromUnix
   else:
-    let interval =
-      if unit == 'w':
-        some(number.weeks)
-      else:
-        none(TimeInterval)
+    let
+      number = numberStr.parseInt
+      interval =
+        if unit == 'w':
+          some(number.weeks)
+        else:
+          none(TimeInterval)
     if interval.isSome:
       sinceTime = (now() - interval.get).toTime
     else:
@@ -97,7 +105,7 @@ if args["dir"]:
   for kind, filename in walkDir(dirPath, relative = true):
     if kind != pcFile:
       continue
-    if filename == TimestampFilename and not args["--since"]:
+    if readSinceTimeFromFile and filename == TimestampFilename:
       let sinceTimestamp = readFile(joinPath(dirPath, filename)).strip.parseInt
       sinceTime = sinceTimestamp.fromUnix
       continue
