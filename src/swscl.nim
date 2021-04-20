@@ -14,7 +14,7 @@ import ./changelog
 const doc = """
 Usage:
   swscl id <ids> [--since=<tp>]
-  swscl dir [<dir>] [--since=<tp>]
+  swscl dir [<dir>] [--since=<tp>] [--write-time]
   swscl (-h | --help)
 
 Arguments:
@@ -24,10 +24,16 @@ Options:
   --since=<tp>  Show changelogs from a period of time.
                 Time periods are denoted {x}{u}, where {x} is an integer and {u}
                 is one of the following:
-                  u - since {x} as Unix time in seconds
-                  w - since {x} weeks ago
+                  u - Since {x} as Unix time in seconds. If in 'dir' mode and
+                    {x} is 'f', read value from file '_swscl_time' in
+                    target directory.
+                  w - Since {x} weeks ago.
+  --write-time  Write current Unix timestamp in seconds to file '_swscl_time' in
+                target directory.
   -h --help     Show this help and exit.
 """
+
+const TimestampFilename = "_swscl_time"
 
 let workshopFilenamePat = re"^(\d+)(.*)?\.vpk$"
 
@@ -91,10 +97,17 @@ if args["dir"]:
   for kind, filename in walkDir(dirPath, relative = true):
     if kind != pcFile:
       continue
+    if filename == TimestampFilename and not args["--since"]:
+      let sinceTimestamp = readFile(filename).strip.parseInt
+      sinceTime = sinceTimestamp.fromUnix
+      continue
     if not filename.isWorkshopAddonFilename:
       continue
     let workshopId = getWorkshopId(filename)
     workshopIds.add(workshopId)
+
+  if args["--write-time"]:
+    writeFile(joinPath(dirPath, TimestampFilename), $getTime().toUnix)
 
 elif args["id"]:
   for id in ($args["<ids>"]).split(","):
