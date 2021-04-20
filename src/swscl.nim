@@ -29,16 +29,19 @@ Options:
   -h --help     Show this help and exit.
 """
 
+let workshopFilenamePat = re"^(\d+)(.*)?\.vpk$"
+
 proc die(msg: string; code = 1) {.noreturn.} =
   stdout.writeLine(msg)
   quit(code)
 
 proc isWorkshopAddonFilename(filename: string): bool =
-  filename.match(re"^\d+(.*)?\.vpk$")
+  filename.match(workshopFilenamePat)
 
 proc getWorkshopId(filename: string): string =
-  let extIdx = filename.find(".vpk")
-  return filename[0..extIdx]
+  var matches: array[2, string]
+  if match(filename, workshopFilenamePat, matches):
+    result = matches[0]
 
 #
 # main
@@ -66,7 +69,7 @@ if args["--since"]:
     else:
       die("Invalid interval '" & sinceStr & "'.")
   
-  echo "sinceTime = ", sinceTime
+  # echo "sinceTime = ", sinceTime
 
 # get workshop IDs #
 
