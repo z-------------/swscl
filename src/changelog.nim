@@ -66,6 +66,8 @@ proc getChangelogPage(id: string; page = 1): Future[ChangelogPage] {.async.} =
   let url = buildChangelogPageUrl(id, page)
 
   var resp = await http.get(url)
+  if resp.code.is4xx or resp.code.is5xx:
+    raise newException(CatchableError, "Got HTTP " & $resp.code & " for '" & url & "'")
   var body = await resp.body
   var doc = parseHtml(body)  # ignores parsing errors
 
