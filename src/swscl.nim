@@ -58,6 +58,7 @@ let args = docopt(doc)
 var
   sinceTime = 0.fromUnix
   readSinceTimeFromFile = false
+  timeNow = getTime().toUnix
 
 if args["--since"]:
   let
@@ -87,10 +88,11 @@ if args["--since"]:
 
 # get workshop IDs #
 
-var workshopIds: seq[string]
+var
+  workshopIds: seq[string]
+  dirPath: string
 
 if args["dir"]:
-  var dirPath: string
   if args["<dir>"]:
     dirPath = $args["<dir>"]
   else:
@@ -114,9 +116,6 @@ if args["dir"]:
     let workshopId = getWorkshopId(filename)
     workshopIds.add(workshopId)
 
-  if args["--write-time"]:
-    writeFile(joinPath(dirPath, TimestampFilename), $getTime().toUnix)
-
 elif args["id"]:
   for id in ($args["<ids>"]).split(","):
     workshopIds.add(id)
@@ -129,3 +128,6 @@ for changelog in changelogs:
     continue
   stderr.writeLine([changelog.name, $changelog.updates.len, changelog.id].join("\t"))
   stdout.writeLine("https://steamcommunity.com/sharedfiles/filedetails/?id=" & $changelog.id)
+
+if args["dir"] and args["--write-time"]:
+  writeFile(joinPath(dirPath, TimestampFilename), $timeNow)
